@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume | Chandra Kiran Reddy Maligireddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Cool Neutrals (Slate, Gray, with a deep Blue accent) -->
+    <!-- Application Structure Plan: A single-page, vertically flowing portfolio with a sticky top navigation. The structure prioritizes experience, putting the Salesforce roles front and center. It then flows to Projects, Certifications, and Skills. This linear, story-like structure guides the recruiter through a compelling career narrative. Projects are filterable, and skills are visualized in an interactive chart to allow for quick, targeted evaluation. The Gemini API is used for an AI Project Explainer feature. -->
+    <!-- Visualization & Content Choices: 
+        - Experience & Education: Goal(Inform) -> Method(Vertical Timeline HTML/CSS) -> Interaction(None) -> Justification(Shows clear career progression).
+        - Projects: Goal(Organize/Compare) -> Method(Card grid with JS filters) -> Interaction(Clickable filters; "Ask AI" button per project to open a Gemini-powered Q&A modal) -> Justification(Allows recruiters to focus on specific projects and engage directly with the content via an LLM). Library: Vanilla JS.
+        - Skills: Goal(Compare/Inform) -> Method(Radar Chart) -> Interaction(Category selection to update chart) -> Justification(Provides a holistic view of multi-disciplinary skills). Library: Chart.js (Canvas).
+        - Certifications: Goal(Inform) -> Method(Grid layout with cards) -> Interaction(Clickable links to credentials) -> Justification(Clean, scannable, and highlights the breadth of qualifications).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 450px;
+            max-height: 60vh;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+        .nav-link.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        #ai-modal {
+            transition: opacity 0.3s ease;
+        }
+        .loader {
+            border-top-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <header id="home" class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600">CKM</div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#experience" class="nav-link text-slate-600 hover:text-blue-600 font-medium border-b-2 border-transparent pb-1">Experience</a>
+                <a href="#projects" class="nav-link text-slate-600 hover:text-blue-600 font-medium border-b-2 border-transparent pb-1">Projects</a>
+                <a href="#skills" class="nav-link text-slate-600 hover:text-blue-600 font-medium border-b-2 border-transparent pb-1">Skills</a>
+                <a href="#certifications" class="nav-link text-slate-600 hover:text-blue-600 font-medium border-b-2 border-transparent pb-1">Certifications</a>
+            </div>
+             <div class="md:hidden">
+                <select id="mobile-nav" class="bg-white border border-slate-300 rounded-md p-2 text-slate-700">
+                    <option value="#home">Home</option>
+                    <option value="#experience">Experience</option>
+                    <option value="#projects">Projects</option>
+                    <option value="#skills">Skills</option>
+                    <option value="#certifications">Certifications</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <section class="text-center mb-24">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-slate-800 mb-4">CHANDRA KIRAN REDDY MALIGIREDDY</h1>
+            <p class="text-xl text-blue-600 font-medium mb-8">ATS Engineer at Salesforce | AI & Software Engineering Enthusiast</p>
+            <div class="max-w-3xl mx-auto text-lg text-slate-600 leading-relaxed">
+                <p>
+                    Motivated engineer with strong professional ethics and a solid foundation in DSA and AI. Passionate about coding in Python, I am eager to apply my knowledge to industrial experiences, further developing my software engineering and Machine Learning skills.
+                </p>
+            </div>
+            <div class="mt-8 flex justify-center items-center space-x-6">
+                 <a href="mailto:chandrakiranreddy27@gmail.com" class="text-slate-500 hover:text-blue-600 transition-colors">
+                    <span class="text-2xl">📧</span>
+                    <span class="sr-only">Email</span>
+                </a>
+                <a href="#" class="text-slate-500 hover:text-blue-600 transition-colors">
+                     <span class="text-2xl">🔗</span>
+                    <span class="sr-only">LinkedIn</span>
+                </a>
+                <a href="#" class="text-slate-500 hover:text-blue-600 transition-colors">
+                     <span class="text-2xl">💻</span>
+                    <span class="sr-only">GitHub</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="experience" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center text-slate-800 mb-4">Experience & Education</h2>
+            <p class="text-lg text-center text-slate-600 max-w-3xl mx-auto mb-12">A timeline of my professional roles and academic background, showcasing my journey in the tech industry.</p>
+            <div class="max-w-3xl mx-auto relative border-l-2 border-blue-200 pl-10">
+                
+                <div class="mb-10 relative">
+                    <div class="absolute -left-[49px] top-1 w-7 h-7 bg-blue-500 rounded-full border-4 border-white"></div>
+                    <p class="text-sm text-slate-500">Aug 2024 - Present</p>
+                    <h3 class="text-xl font-bold text-slate-800">ATS Engineer, Salesforce</h3>
+                    <p class="text-slate-600 mt-2">Developed and integrated AI-powered features for customers including Agentforce, Prompt Builder, and Einstein Generative AI, leveraging OpenAI, Agent APIs and LLMs to enhance automated decision-making and customer support workflows.</p>
+                </div>
+
+                <div class="mb-10 relative">
+                    <div class="absolute -left-[49px] top-1 w-7 h-7 bg-blue-500 rounded-full border-4 border-white"></div>
+                    <p class="text-sm text-slate-500">Feb 2024 - Aug 2024</p>
+                    <h3 class="text-xl font-bold text-slate-800">Intern, Salesforce</h3>
+                    <p class="text-slate-600 mt-2">Completed Trailmixes designed for Salesforce Administrator and Salesforce Developer, gaining skills in Service Cloud, Apex Classes, and Apex triggers.</p>
+                </div>
+
+                <div class="mb-10 relative">
+                    <div class="absolute -left-[49px] top-1 w-7 h-7 bg-blue-500 rounded-full border-4 border-white"></div>
+                    <p class="text-sm text-slate-500">2020 - 2024</p>
+                    <h3 class="text-xl font-bold text-slate-800">B.E, Information Technology</h3>
+                    <p class="text-slate-600 mt-2">Vasavi College of Engineering. CGPA: 8.04</p>
+                </div>
+                
+                 <div class="relative">
+                    <div class="absolute -left-[49px] top-1 w-7 h-7 bg-blue-500 rounded-full border-4 border-white"></div>
+                    <p class="text-sm text-slate-500">2018 - 2020</p>
+                    <h3 class="text-xl font-bold text-slate-800">11th & 12th MPC</h3>
+                    <p class="text-slate-600 mt-2">Resonance Junior College. Percentage: 96.2%</p>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="projects" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center text-slate-800 mb-4">Projects</h2>
+            <p class="text-lg text-center text-slate-600 max-w-3xl mx-auto mb-8">Explore my key projects. Use the filters to sort between AI/Machine Learning and Web Development work, or use the AI assistant to ask specific questions about a project.</p>
+            <div id="project-filters" class="flex justify-center flex-wrap gap-3 mb-10">
+                <button data-filter="all" class="filter-btn bg-blue-600 text-white px-5 py-2 rounded-full font-medium">All</button>
+                <button data-filter="ai" class="filter-btn bg-white text-slate-700 px-5 py-2 rounded-full font-medium border border-slate-200 hover:bg-blue-50">AI / ML</button>
+                <button data-filter="web" class="filter-btn bg-white text-slate-700 px-5 py-2 rounded-full font-medium border border-slate-200 hover:bg-blue-50">Web</button>
+            </div>
+            <div id="project-grid" class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            </div>
+        </section>
+
+        <section id="skills" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center text-slate-800 mb-4">Technical Skills</h2>
+            <p class="text-lg text-center text-slate-600 max-w-3xl mx-auto mb-8">This interactive chart provides a holistic view of my skills. Select a category to see my proficiency in different areas of software development.</p>
+             <div id="skill-filters" class="flex justify-center flex-wrap gap-3 mb-10">
+                <button data-skill="core" class="skill-filter-btn bg-blue-600 text-white px-5 py-2 rounded-full font-medium">Core Skills</button>
+                <button data-skill="frameworks" class="skill-filter-btn bg-white text-slate-700 px-5 py-2 rounded-full font-medium border border-slate-200 hover:bg-blue-50">Frameworks & Platforms</button>
+            </div>
+            <div class="bg-white p-4 sm:p-8 rounded-xl shadow-lg">
+                <div class="chart-container">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="certifications" class="mb-24 scroll-mt-20">
+            <h2 class="text-4xl font-bold text-center text-slate-800 mb-4">Certifications</h2>
+             <p class="text-lg text-center text-slate-600 max-w-3xl mx-auto mb-12">A collection of my professional certifications from industry leaders like Salesforce, AWS, Cisco, and more. Click any card to view the credential.</p>
+            <div id="certifications-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            </div>
+        </section>
+        
+    </main>
+    
+    <footer class="bg-slate-800 text-slate-300 mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 Chandra Kiran Reddy Maligireddy. Interactive resume created for demonstration.</p>
+        </div>
+    </footer>
+
+    <div id="ai-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div id="ai-modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+             <div class="flex justify-between items-center p-4 border-b">
+                <h3 id="ai-modal-title" class="text-xl font-bold text-slate-800">Ask about this project</h3>
+                <button id="ai-modal-close" class="text-slate-500 hover:text-slate-800 text-2xl">&times;</button>
+            </div>
+            <div id="ai-modal-body" class="p-6 overflow-y-auto">
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const projectsData = [
+        {
+            id: 1,
+            title: "Computationally Efficient HybridSN Model",
+            category: "ai",
+            description: "To reduce the computational complexity of the HybridSN model, this paper proposes the use of an Inception model between the 3D and 2D convolutions. Paper under submission to IEEE Access.",
+            tech: ["Tensorflow", "Keras", "Scikit-learn", "Python"]
+        },
+        {
+            id: 2,
+            title: "Cultivó: AI-Powered Agricultural Platform",
+            category: "web",
+            description: "A user-friendly website with comprehensive agricultural information and an innovative AI-based solution for plant disease detection using Convolutional Neural Networks (CNN).",
+            tech: ["Flask", "CNN", "Python", "PHP", "HTML/CSS"]
+        }
+    ];
+    
+    const certificationsData = [
+        { title: "Agentforce Specialist", issuer: "Salesforce", link: "#" },
+        { title: "Data Cloud Consultant", issuer: "Salesforce", link: "#" },
+        { title: "Service Cloud Consultant", issuer: "Salesforce", link: "#" },
+        { title: "Cloud Foundations", issuer: "AWS Academy", link: "#" },
+        { title: "Designing RESTful APIs", issuer: "LinkedIn", link: "#" },
+        { title: "Cyber Security Essentials", issuer: "Cisco", link: "#" },
+        { title: "Data Analytics Essentials", issuer: "Cisco", link: "#" },
+        { title: "Networking Essentials", issuer: "Cisco", link: "#" },
+        { title: "Programming in Java", issuer: "NPTEL", link: "#" },
+        { title: "SQL [Advanced]", issuer: "HackerRank", link: "#" },
+    ];
+    
+    const projectGrid = document.getElementById('project-grid');
+    const projectFilters = document.getElementById('project-filters');
+
+    function renderProjects(filter = 'all') {
+        projectGrid.innerHTML = '';
+        const filteredProjects = filter === 'all' 
+            ? projectsData 
+            : projectsData.filter(p => p.category === filter);
+
+        filteredProjects.forEach(project => {
+            const card = document.createElement('div');
+            card.className = 'card-hover bg-white p-6 rounded-xl shadow-md flex flex-col';
+            card.innerHTML = `
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">${project.title}</h3>
+                    <p class="text-slate-600 mb-4" style="min-height: 100px;">${project.description}</p>
+                </div>
+                <div class="mt-auto">
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${project.tech.map(t => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">${t}</span>`).join('')}
+                    </div>
+                    <button data-project-id="${project.id}" class="ask-ai-btn w-full text-center bg-blue-50 text-blue-700 font-semibold py-2 px-4 rounded-lg hover:bg-blue-100 transition-colors">✨ Ask AI about this project</button>
+                </div>
+            `;
+            projectGrid.appendChild(card);
+        });
+    }
+
+    projectFilters.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            document.querySelectorAll('#project-filters .filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            e.target.classList.add('bg-blue-600', 'text-white');
+            e.target.classList.remove('bg-white', 'text-slate-700');
+            renderProjects(e.target.dataset.filter);
+        }
+    });
+
+    const certificationsGrid = document.getElementById('certifications-grid');
+    certificationsData.forEach(cert => {
+        const item = document.createElement('a');
+        item.href = cert.link;
+        item.target = "_blank";
+        item.rel = "noopener noreferrer";
+        item.className = 'card-hover bg-white p-5 rounded-xl shadow-md flex items-center hover:bg-slate-50 block';
+        item.innerHTML = `
+            <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex-shrink-0 flex items-center justify-center mr-4 text-xl">
+                <span>&#127941;</span>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800">${cert.title}</h3>
+                <p class="text-sm text-slate-500">${cert.issuer}</p>
+            </div>
+        `;
+        certificationsGrid.appendChild(item);
+    });
+
+    const skillsData = {
+        core: {
+            labels: ['Python', 'Data Structures', 'Algorithms', 'SQL', 'Java', 'System Design'],
+            data: [95, 90, 90, 85, 80, 80]
+        },
+        frameworks: {
+            labels: ['Machine Learning', 'Deep Learning', 'Flask', 'React', 'Cloud (AWS/Azure)', 'Docker'],
+            data: [90, 85, 85, 75, 80, 70]
+        }
+    };
+
+    const ctx = document.getElementById('skillsChart').getContext('2d');
+    const skillsChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: skillsData.core.labels,
+            datasets: [{
+                label: 'Proficiency',
+                data: skillsData.core.data,
+                fill: true,
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgb(37, 99, 235)',
+                pointBackgroundColor: 'rgb(37, 99, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(37, 99, 235)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            elements: {
+                line: {
+                    borderWidth: 3
+                }
+            },
+             scales: {
+                r: {
+                    angleLines: {
+                        color: '#e2e8f0'
+                    },
+                    grid: {
+                        color: '#e2e8f0'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 14,
+                        },
+                         color: '#475569'
+                    },
+                    ticks: {
+                        backdropColor: 'transparent',
+                        stepSize: 20
+                    },
+                    min: 0,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    const skillFilters = document.getElementById('skill-filters');
+    skillFilters.addEventListener('click', e => {
+        if(e.target.tagName === 'BUTTON') {
+            document.querySelectorAll('#skill-filters .skill-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            e.target.classList.add('bg-blue-600', 'text-white');
+            e.target.classList.remove('bg-white', 'text-slate-700');
+            
+            const skillCategory = e.target.dataset.skill;
+            skillsChart.data.labels = skillsData[skillCategory].labels;
+            skillsChart.data.datasets[0].data = skillsData[skillCategory].data;
+            skillsChart.update();
+        }
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section[id]');
+    
+    function updateActiveLink() {
+        let index = sections.length;
+        while(--index && window.scrollY + 100 < sections[index].offsetTop) {}
+        navLinks.forEach((link) => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[href="#${sections[index].id}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+
+    window.addEventListener('scroll', updateActiveLink);
+    
+    document.getElementById('mobile-nav').addEventListener('change', function() {
+        window.location.hash = this.value;
+    });
+
+    renderProjects();
+    updateActiveLink();
+
+    const apiKey = "";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+    async function callGeminiAPI(prompt, systemInstruction = "") {
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined
+        };
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                return `Error: API request failed with status ${response.status}. ${errorBody}`;
+            }
+
+            const result = await response.json();
+            return result.candidates?.[0]?.content?.parts?.[0]?.text || "No content generated.";
+        } catch (error) {
+            return `Error: An unexpected error occurred. ${error.message}`;
+        }
+    }
+    
+    function showLoader(container) {
+        container.innerHTML = '<div class="flex justify-center items-center p-8"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div></div>';
+    }
+
+    const modal = document.getElementById('ai-modal');
+    const modalBody = document.getElementById('ai-modal-body');
+    const modalTitle = document.getElementById('ai-modal-title');
+    const modalCloseBtn = document.getElementById('ai-modal-close');
+
+    function openModal() {
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeModal() {
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+    
+    modalCloseBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    projectGrid.addEventListener('click', async (e) => {
+        const button = e.target.closest('.ask-ai-btn');
+        if (!button) return;
+
+        const projectId = parseInt(button.dataset.projectId);
+        const project = projectsData.find(p => p.id === projectId);
+        if (!project) return;
+        
+        modalTitle.textContent = `Ask about: ${project.title}`;
+        modalBody.innerHTML = `
+            <p class="text-slate-600 mb-4">You can ask a question about this project, and an AI assistant will answer based on the project's description.</p>
+            <form id="ai-project-form">
+                <input type="text" id="ai-project-question" class="w-full border border-slate-300 rounded-md p-2 mb-4" placeholder="e.g., What was the main challenge?">
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Ask AI</button>
+            </form>
+            <div id="ai-project-response" class="mt-4"></div>
+        `;
+        openModal();
+
+        const form = document.getElementById('ai-project-form');
+        form.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const question = document.getElementById('ai-project-question').value;
+            if (!question.trim()) return;
+
+            const responseContainer = document.getElementById('ai-project-response');
+            showLoader(responseContainer);
+            
+            const prompt = `Regarding the project "${project.title}", which is described as "${project.description}", please answer the following question: "${question}"`;
+            const systemInstruction = "You are the candidate, Chandra Kiran Reddy, answering a recruiter's question about one of your projects. Answer concisely and professionally from your perspective.";
+            
+            const response = await callGeminiAPI(prompt, systemInstruction);
+            responseContainer.innerHTML = `<div class="bg-slate-50 p-4 rounded-lg prose max-w-none"><p>${response.replace(/\n/g, '<br>')}</p></div>`;
+        });
+    });
+});
+</script>
+</body>
+</html>
